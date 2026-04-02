@@ -12,7 +12,7 @@ class RespClassListFacts {
     }
 }
 class Fact {
-    myFact = "";
+    text = "";
 }
 class ApiAdapted {
     baseUrl = "https://catfact.ninja";
@@ -26,12 +26,12 @@ class ApiAdapted {
         }).then(function (json) {
             const resp = new RespClassFact(json);
             const entityFact = new Fact();
-            entityFact.myFact = resp.fact;
+            entityFact.text = resp.fact;
             return entityFact;
         });
     }
-    getListFacts() {
-        let url = `${this.baseUrl}/facts`;
+    getListFacts(limit) {
+        let url = `${this.baseUrl}/facts?limit=${limit}`;
         return fetch(url).then(function (response) {
             return response.json();
         }).then(function (json) {
@@ -39,18 +39,65 @@ class ApiAdapted {
             const facts = [];
             for (let i = 0; i < resp.data.length; i++) {
                 const factEntity = new Fact();
-                factEntity.myFact = resp.data[i].fact;
+                factEntity.text = resp.data[i].fact;
                 facts.push(factEntity);
             }
             return facts;
         });
     }
 }
-let a = new ApiAdapted();
-a.getRandomFact().then(function (response) {
-    console.log(response);
-});
-a.getListFacts().then(function (response) {
-    console.log(response);
-});
+let api = new ApiAdapted();
+window.onload = function () {
+    let buttonGetFact = document.getElementById("get-fact");
+    if (buttonGetFact) {
+        buttonGetFact.onclick = onclickButtonFact;
+    }
+    let buttonGetList = document.getElementById("get-list-facts");
+    if (buttonGetList) {
+        buttonGetList.onclick = onclickButtonList;
+    }
+};
+function onclickButtonFact() {
+    api.getRandomFact().then(function (fact) {
+        renderFact(fact);
+    });
+}
+function onclickButtonList() {
+    api.getListFacts(1000).then(function (facts) {
+        let map = new Map();
+        for (let i = 0; i < 10; i++) {
+            let index = Math.floor(Math.random() * 10);
+            while (map.has(index)) {
+                index = Math.floor(Math.random() * 10);
+            }
+            map.set(index, true);
+        }
+        let randomFacts = [];
+        for (let key of map.keys()) {
+            if (facts[key]) {
+                randomFacts.push(facts[key]);
+            }
+        }
+        renderList(randomFacts);
+    });
+}
+function renderFact(fact) {
+    let factContainer = document.querySelector(".fact-text");
+    if (factContainer) {
+        factContainer.textContent = fact.text;
+    }
+}
+function renderList(facts) {
+    const ul = document.querySelector(".facts-list");
+    if (ul) {
+        ul.textContent = "";
+    }
+    for (let i = 0; i < facts.length; i++) {
+        let li = document.createElement("li");
+        li.className = "fact-item";
+        li.textContent = facts[i]?.text ?? "";
+        ul?.appendChild(li);
+    }
+    console.log(facts);
+}
 //# sourceMappingURL=script.js.map
