@@ -98,6 +98,5 @@ function renderList(facts) {
         li.textContent = facts[i]?.text ?? "";
         ul?.appendChild(li);
     }
-    console.log(facts);
 }
 //# sourceMappingURL=script.js.map
